@@ -1,7 +1,9 @@
 package com.iwellness.admin_users_api.Config;
 
 import java.io.File;
+
 import javax.sql.DataSource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +35,7 @@ public class DataSourceBean {
         // URL de la base de datos
         String url = isTestContext 
                 ? "jdbc:sqlite:iwellness_admin_users_api_test.db"
-                : "jdbc:sqlite:admin_users_api/iwellness_admin_users_api.db";
+                : "jdbc:sqlite:iwellness_admin_users_api.db";
         
         dataSource.setUrl(url);
         
