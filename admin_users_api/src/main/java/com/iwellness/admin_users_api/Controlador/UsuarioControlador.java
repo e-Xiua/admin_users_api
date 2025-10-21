@@ -1,24 +1,30 @@
 package com.iwellness.admin_users_api.Controlador;
 
-import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iwellness.admin_users_api.DTO.EditarProveedorDTO;
 import com.iwellness.admin_users_api.DTO.EditarTuristaDTO;
 import com.iwellness.admin_users_api.DTO.ProveedorDTO;
 import com.iwellness.admin_users_api.DTO.TuristaDTO;
+import com.iwellness.admin_users_api.DTO.UsuarioResponseDTO;
 import com.iwellness.admin_users_api.Entidades.Usuarios;
 import com.iwellness.admin_users_api.Servicios.UsuariosServicio;
 import com.iwellness.admin_users_api.Servicios.Rabbit.MensajeServiceUsers;
-import com.iwellness.admin_users_api.DTO.UsuarioResponseDTO;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -90,7 +96,40 @@ public class UsuarioControlador {
                    .body("Error al obtener el usuario: " + e.getMessage());
         }
     }
-    
+
+        /**
+     * Devuelve los detalles de un usuario sin verificar la propiedad.
+     * Ideal para páginas de perfil públicas.
+     * Aún requiere que el solicitante esté autenticado.
+     */
+    @GetMapping("/perfil-publico/{id}")
+    public ResponseEntity<?> obtenerPerfilPublicoPorId(@PathVariable Long id) {
+        try {
+            // 1. Validar que hay un usuario autenticado
+            if (getUsuarioActual() == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                       .body("Debe estar autenticado para ver perfiles");
+            }
+
+        // 2. Llamar al servicio para obtener el usuario y validar que es un proveedor
+            Usuarios usuario = usuariosServicio.findById(id);
+            if (usuario == null || usuario.getProveedor() == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                       .body("No se encontró un proveedor con el ID: " + id);
+            }
+
+            UsuarioResponseDTO responseDTO = UsuarioResponseDTO.fromEntity(usuario);
+
+            // 4. Devolvemos el DTO en la respuesta. El JSON será limpio y seguro.
+            return ResponseEntity.ok(responseDTO);
+
+        } catch (Exception e) {
+            // Captura cualquier otra excepción del servicio (ej. RuntimeException)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                   .body("Error al obtener el perfil público: " + e.getMessage());
+        }
+    }
+ 
     @PutMapping("/editarTurista/{id}")
     public ResponseEntity<?> editarUsuarioTurista(@PathVariable Long id, @RequestBody EditarTuristaDTO dto) {
         try {
