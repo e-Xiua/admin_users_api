@@ -1,0 +1,60 @@
+version: '3.9'
+
+services:
+  admin-users-api:
+    build:
+      context: ./admin_users_api
+      dockerfile: Dockerfile
+    image: admin-users-api:latest
+    container_name: admin_users_api
+    ports:
+      - "${SERVER_PORT:-8082}:8082"
+    environment:
+      # Spring Profile
+      - SPRING_PROFILES_ACTIVE=docker
+      
+      # Server Configuration
+      - SERVER_PORT=${SERVER_PORT:-8082}
+      
+      # RabbitMQ Configuration
+      - RABBITMQ_HOST=${RABBITMQ_HOST:-rabbitmq}
+      - RABBITMQ_PORT=${RABBITMQ_PORT:-5672}
+      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME:-user}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-user}
+      
+      # Email Configuration
+      - MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
+      - MAIL_PORT=${MAIL_PORT:-587}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      
+      # Feign Clients URLs
+      - PREFERENCIAS_SERVICE_URL=${PREFERENCIAS_SERVICE_URL:-http://user_preferences_api:8081}
+      - SERVICIO_SERVICE_URL=${SERVICIO_SERVICE_URL:-http://providers_api:8080}
+      
+      # Java Options (construido desde variables separadas)
+      - JAVA_OPTS=-Xms${JAVA_OPTS_XMS:-256m} -Xmx${JAVA_OPTS_XMX:-512m}
+    
+    volumes:
+      # Persistencia de base de datos SQLite
+      - admin_users_data:/app/data
+    
+    networks:
+      - tesisNetwork
+    
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+networks:
+  tesisNetwork:
+    external: true
+
+volumes:
+  admin_users_data:
+    driver: local
