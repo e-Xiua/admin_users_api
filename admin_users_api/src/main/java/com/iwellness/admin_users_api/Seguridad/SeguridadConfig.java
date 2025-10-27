@@ -40,6 +40,7 @@ public class SeguridadConfig {
             .sessionManagement(customizer -> customizer.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Sin sesiones
             .authorizeHttpRequests(requests -> requests
                 .requestMatchers("/auth/**").permitAll() // Permitir acceso público a los endpoints de autenticación
+                .requestMatchers("/actuator/**").permitAll() // Permitir acceso público a los endpoints de actuator (health checks)
                 .requestMatchers("/usuarios/**").hasAnyAuthority("Admin", "Proveedor", "Turista")
                 .requestMatchers("/debug/**").hasAuthority("Admin")// Permitir acceso a endpoints de debug
                 .requestMatchers("/admin/**").hasAuthority("Admin") // Solo administradores pueden acceder a /admin/**

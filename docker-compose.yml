@@ -6,7 +6,7 @@ services:
       context: ./admin_users_api
       dockerfile: Dockerfile
     image: admin-users-api:latest
-    container_name: admin_users_api
+    container_name: admin-users-api
     ports:
       - "${SERVER_PORT:-8082}:8082"
     environment:
@@ -29,8 +29,8 @@ services:
       - MAIL_PASSWORD=${MAIL_PASSWORD}
       
       # Feign Clients URLs
-      - PREFERENCIAS_SERVICE_URL=${PREFERENCIAS_SERVICE_URL:-http://user_preferences_api:8081}
-      - SERVICIO_SERVICE_URL=${SERVICIO_SERVICE_URL:-http://providers_api:8080}
+      - PREFERENCIAS_SERVICE_URL=${PREFERENCIAS_SERVICE_URL:-http://user-preferences-api:8081}
+      - SERVICIO_SERVICE_URL=${SERVICIO_SERVICE_URL:-http://providers-api:8080}
       
       # Java Options (construido desde variables separadas)
       - JAVA_OPTS=-Xms${JAVA_OPTS_XMS:-256m} -Xmx${JAVA_OPTS_XMX:-512m}

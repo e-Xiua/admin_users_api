@@ -4,7 +4,6 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iwellness.admin_users_api.Entidades.Proveedor;
-import com.iwellness.admin_users_api.Entidades.Rol;
 import com.iwellness.admin_users_api.Entidades.Turista;
 import com.iwellness.admin_users_api.Entidades.Usuarios;
 
@@ -16,7 +15,7 @@ public class UsuarioResponseDTO {
     private String nombre;
     private String correo;
     private String foto;
-    private Rol rol;
+    private String rol;
     
     // Información específica de turista
     private TuristaInfo turistaInfo;
@@ -57,7 +56,7 @@ public class UsuarioResponseDTO {
         dto.setNombre(usuario.getNombre());
         dto.setCorreo(usuario.getCorreo());
         dto.setFoto(usuario.getFoto());
-        dto.setRol(usuario.getRol());
+        dto.setRol(usuario.getRol().getNombre());
         
         // Si el rol es Turista, incluir información de turista
         if (usuario.getTurista() != null) {
