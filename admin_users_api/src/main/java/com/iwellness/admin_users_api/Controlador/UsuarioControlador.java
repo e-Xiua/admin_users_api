@@ -113,7 +113,7 @@ public class UsuarioControlador {
 
         // 2. Llamar al servicio para obtener el usuario y validar que es un proveedor
             Usuarios usuario = usuariosServicio.findById(id);
-            if (usuario == null || usuario.getProveedor() == null) {
+            if (usuario == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                        .body("No se encontró un proveedor con el ID: " + id);
             }
