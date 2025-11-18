@@ -33,7 +33,7 @@ public class DataSourceBean {
         // URL de la base de datos
         String url = isTestContext 
                 ? "jdbc:sqlite:iwellness_admin_users_api_test.db"
-                : "jdbc:sqlite:admin_users_api/iwellness_admin_users_api.db";
+                : "jdbc:sqlite:iwellness_admin_users_api.db";
         
         dataSource.setUrl(url);
         
