@@ -1,0 +1,27 @@
+# Variables de entorno con información sensible
+.env
+.env.local
+.env.*.local
+
+# Bases de datos SQLite
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Maven
+admin_users_api/target/
+admin_users_api/.mvn/
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+
+# Logs
+*.log
+logs/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
