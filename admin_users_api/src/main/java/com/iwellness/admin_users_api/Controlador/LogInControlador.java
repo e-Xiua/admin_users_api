@@ -1,34 +1,5 @@
 package com.iwellness.admin_users_api.Controlador;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.iwellness.admin_users_api.DTO.UsuarioResponseDTO;
-import com.iwellness.admin_users_api.DTO.ProveedorDTO;
-import com.iwellness.admin_users_api.DTO.RegistroProveedorDTO;
-import com.iwellness.admin_users_api.DTO.TuristaDTO;
-import com.iwellness.admin_users_api.DTO.UsuariosDTO;
-import com.iwellness.admin_users_api.Entidades.PasswordResetToken;
-import com.iwellness.admin_users_api.Entidades.Turista;
-import com.iwellness.admin_users_api.Entidades.Usuarios;
-import com.iwellness.admin_users_api.Repositorios.PasswordResetTokenRepository;
-import com.iwellness.admin_users_api.Servicios.EmailService;
-import com.iwellness.admin_users_api.Repositorios.TuristaRepositorio;
-import com.iwellness.admin_users_api.Servicios.RegistroServicio;
-import com.iwellness.admin_users_api.Servicios.UsuariosServicio;
-import com.iwellness.admin_users_api.Servicios.Rabbit.MensajeServiceUsers;
-import com.iwellness.admin_users_api.Seguridad.CustomUserDetailsService;
-import com.iwellness.admin_users_api.Seguridad.JWTProveedor;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +8,40 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.iwellness.admin_users_api.DTO.ProveedorDTO;
+import com.iwellness.admin_users_api.DTO.TuristaDTO;
+import com.iwellness.admin_users_api.DTO.UsuarioResponseDTO;
+import com.iwellness.admin_users_api.DTO.UsuariosDTO;
+import com.iwellness.admin_users_api.Entidades.PasswordResetToken;
+import com.iwellness.admin_users_api.Entidades.Turista;
+import com.iwellness.admin_users_api.Entidades.Usuarios;
+import com.iwellness.admin_users_api.Repositorios.PasswordResetTokenRepository;
+import com.iwellness.admin_users_api.Repositorios.TuristaRepositorio;
+import com.iwellness.admin_users_api.Seguridad.CustomUserDetailsService;
+import com.iwellness.admin_users_api.Seguridad.JWTProveedor;
+import com.iwellness.admin_users_api.Servicios.EmailService;
+import com.iwellness.admin_users_api.Servicios.RegistroServicio;
+import com.iwellness.admin_users_api.Servicios.UsuariosServicio;
+import com.iwellness.admin_users_api.Servicios.Rabbit.MensajeServiceUsers;
 
 @RestController
 @RequestMapping("/auth")
@@ -209,19 +214,25 @@ public ResponseEntity<?> registrarProveedor(@RequestBody Map<String, Object> dat
             // Extraer el token JWT del encabezado Authorization
             String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
 
-            // Obtener el rol desde el token
+            // Obtener el username desde el token
             String username = customUserDetailsService.getUserFromToken(jwtToken);
 
             // Buscar usuario en la base de datos
-            Optional<Usuarios> usuario = usuariosServicio.findByCorreo(username);
+            Optional<Usuarios> usuarioOpt = usuariosServicio.findByCorreo(username);
 
-            if (usuario == null) {
+            if (usuarioOpt.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
             }
+            
+            Usuarios usuario = usuarioOpt.get();
+            
+            // Usar el método fromEntity del DTO para evitar problemas de serialización
+            UsuarioResponseDTO responseDTO = UsuarioResponseDTO.fromEntity(usuario);
     
-            return ResponseEntity.ok(usuario);
+            return ResponseEntity.ok(responseDTO);
 
         }catch (Exception e) {
+            logger.error("Error al obtener información del usuario", e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
         }
     }
